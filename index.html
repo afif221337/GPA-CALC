@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student GPA Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    input, button {
+      margin: 5px;
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #0070f3;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+    .student-box {
+      background: #fff;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .course-box {
+      background: #f9f9f9;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 5px solid #0070f3;
+    }
+    .gpa {
+      font-size: 1.2em;
+      color: #0070f3;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Student GPA Calculator</h2>
+
+  <label>Number of students: </label>
+  <input type="number" id="numStudents" min="1" value="1"><br>
+
+  <label>Number of courses per student: </label>
+  <input type="number" id="numCourses" min="1" value="5"><br>
+
+  <button onclick="createForm()">Generate Form</button>
+
+  <div id="formArea"></div>
+  <div id="resultArea"></div>
+
+  <script>
+    function grade(score) {
+      if (score >= 80) return 4.00;
+      else if (score >= 75) return 3.75;
+      else if (score >= 70) return 3.50;
+      else if (score >= 65) return 3.25;
+      else if (score >= 60) return 3.00;
+      else if (score >= 55) return 2.75;
+      else if (score >= 50) return 2.50;
+      else if (score >= 45) return 2.25;
+      else return 0.00;
+    }
+
+    function createForm() {
+      const n = parseInt(document.getElementById("numStudents").value);
+      const m = parseInt(document.getElementById("numCourses").value);
+      const formArea = document.getElementById("formArea");
+      formArea.innerHTML = "";
+
+      for (let i = 0; i < n; i++) {
+        let studentBox = document.createElement("div");
+        studentBox.className = "student-box";
+        studentBox.innerHTML = `
+          <h3>Student ${i+1}</h3>
+          Name: <input type="text" id="name${i}" placeholder="Enter name"><br>
+          Registration No: <input type="number" id="reg${i}" placeholder="Reg no"><br>
+          Department: <input type="text" id="dept${i}" placeholder="Dept"><br><br>
+          <strong>Courses (${m})</strong><br>
+          ${Array(m).fill(0).map((_, j) => `
+            <div class="course-box">
+              Course ${j+1} name: <input type="text" id="course${i}_${j}" placeholder="Course name"><br>
+              Credit: <input type="number" step="0.01" id="credit${i}_${j}" placeholder="Credit"><br>
+              Obtained Score: <input type="number" step="0.01" id="score${i}_${j}" placeholder="Score"><br>
+            </div>
+          `).join("")}
+        `;
+        formArea.appendChild(studentBox);
+      }
+
+      formArea.innerHTML += `<button onclick="calculateGPA(${n}, ${m})">Calculate GPA</button>`;
+    }
+
+    function calculateGPA(n, m) {
+      const resultArea = document.getElementById("resultArea");
+      resultArea.innerHTML = "";
+
+      for (let i = 0; i < n; i++) {
+        let name = document.getElementById(`name${i}`).value;
+        let reg = document.getElementById(`reg${i}`).value;
+        let dept = document.getElementById(`dept${i}`).value;
+
+        let totalCredit = 0;
+        let creditXgpa = 0;
+        let studentHTML = `<div class="student-box"><h3>${name}</h3>`;
+        studentHTML += `Reg No: ${reg}<br>Dept: ${dept}<br>`;
+
+        for (let j = 0; j < m; j++) {
+          let course = document.getElementById(`course${i}_${j}`).value;
+          let credit = parseFloat(document.getElementById(`credit${i}_${j}`).value);
+          let score = parseFloat(document.getElementById(`score${i}_${j}`).value);
+
+          let g = grade(score);
+          totalCredit += credit;
+          creditXgpa += g * credit;
+
+          studentHTML += `
+            <div class="course-box">
+              <strong>${course}</strong><br>
+              Credit: ${credit.toFixed(2)} | Score: ${score.toFixed(2)} | GPA: ${g.toFixed(2)}
+            </div>
+          `;
+        }
+
+        let gpa = totalCredit > 0 ? (creditXgpa / totalCredit).toFixed(2) : 0;
+        studentHTML += `<p class="gpa">Overall GPA: ${gpa}</p></div>`;
+
+        resultArea.innerHTML += studentHTML;
+      }
+    }
+  </script>
+</body>
+</html>
