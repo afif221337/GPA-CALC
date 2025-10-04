@@ -46,6 +46,20 @@
       font-size: 1.2em;
       color: #0070f3;
       font-weight: bold;
+      margin-bottom: 10px; /* Added some space below GPA */
+    }
+    .attendance-link {
+        display: block;
+        margin-top: 15px;
+        text-align: center;
+    }
+    .attendance-link a {
+        color: #0070f3;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .attendance-link a:hover {
+        text-decoration: underline;
     }
   </style>
 </head>
@@ -109,6 +123,8 @@
       const resultArea = document.getElementById("resultArea");
       resultArea.innerHTML = "";
 
+      const attendanceLink = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKSLSeadI0fi2DffUM05ArSXsKkJqMUQmk63uXiFzbFLQiZ-ofXydwANu55-gCyVVNJizVg7G81V4G/pubhtml?gid=0&single=true";
+
       for (let i = 0; i < n; i++) {
         let name = document.getElementById(`name${i}`).value;
         let reg = document.getElementById(`reg${i}`).value;
@@ -137,7 +153,10 @@
         }
 
         let gpa = totalCredit > 0 ? (creditXgpa / totalCredit).toFixed(2) : 0;
-        studentHTML += `<p class="gpa">Overall GPA: ${gpa}</p></div>`;
+        studentHTML += `<p class="gpa">Overall GPA: ${gpa}</p>`;
+        // Add the attendance report link
+        studentHTML += `<div class="attendance-link"><a href="${attendanceLink}" target="_blank">See Attendance Report</a></div>`;
+        studentHTML += `</div>`; // Close the student-box div
 
         resultArea.innerHTML += studentHTML;
       }
