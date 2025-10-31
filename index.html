@@ -1,166 +1,312 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Student GPA Calculator</title>
-  <style>
+<meta charset="UTF-8">
+<title>University GPA Report Generator</title>
+<style>
+  body {
+    font-family: "Times New Roman", serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h2 {
+    text-align: center;
+    color: #1a237e;
+    text-transform: uppercase;
+  }
+
+  .toggle-btn, button {
+    background-color: #1a237e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    margin: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .toggle-btn:hover, button:hover {
+    background-color: #0d154d;
+  }
+
+  input, select {
+    margin: 5px;
+    padding: 7px;
+    border-radius: 4px;
+    border: 1px solid #aaa;
+  }
+
+  .grade-chart {
+    display: none;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    padding: 15px;
+    margin: 20px auto;
+    max-width: 550px;
+  }
+
+  .grade-chart table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+  }
+  .grade-chart th, .grade-chart td {
+    border: 1px solid #444;
+    padding: 6px;
+  }
+  .grade-chart th {
+    background: #1a237e;
+    color: white;
+  }
+
+  .student-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  .course-box {
+    background: #fafafa;
+    border-left: 4px solid #1a237e;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 4px;
+  }
+
+  .gpa {
+    font-weight: bold;
+    color: #1a237e;
+    font-size: 1.1em;
+  }
+
+  #formArea, #resultArea {
+    max-width: 800px;
+    margin: auto;
+  }
+
+  /* Print Formatting */
+  @media print {
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f2f5;
-      padding: 20px;
+      background: white;
     }
-    h2 {
-      text-align: center;
-      color: #333;
+    .toggle-btn, #formArea button, #printBtn {
+      display: none !important;
     }
-    input, button {
-      margin: 5px;
-      padding: 8px 12px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+    #gradeChart {
+      display: none !important;
     }
-    button {
-      background-color: #0070f3;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background-color: #005bb5;
+    #resultArea {
+      box-shadow: none;
+      margin-top: 0;
     }
     .student-box {
-      background: #fff;
-      padding: 20px;
-      margin: 15px 0;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      page-break-inside: avoid;
+      border: 1px solid #000;
+      margin-bottom: 30px;
     }
-    .course-box {
-      background: #f9f9f9;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border-left: 5px solid #0070f3;
+    .student-box h3 {
+      text-align: center;
+      text-transform: uppercase;
+      border-bottom: 1px solid #000;
+      padding-bottom: 4px;
     }
     .gpa {
-      font-size: 1.2em;
-      color: #0070f3;
-      font-weight: bold;
-      margin-bottom: 10px; /* Added some space below GPA */
+      text-align: right;
     }
-    .attendance-link {
-        display: block;
-        margin-top: 15px;
-        text-align: center;
-    }
-    .attendance-link a {
-        color: #0070f3;
-        text-decoration: none;
-        font-weight: bold;
-    }
-    .attendance-link a:hover {
-        text-decoration: underline;
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <h2>Student GPA Calculator</h2>
+<h2>University GPA Calculator & Report</h2>
 
-  <label>Number of students: </label>
-  <input type="number" id="numStudents" min="1" value="1"><br>
+<!-- Toggle Grade Chart -->
+<button class="toggle-btn" onclick="toggleChart()">See Grade Conversion Chart</button>
 
-  <label>Number of courses per student: </label>
+<div class="grade-chart" id="gradeChart">
+  <h3 style="text-align:center;">Grade Conversion Chart</h3>
+  <table>
+    <tr><th>Marks</th><th>Letter Grade</th><th>Grade Point</th></tr>
+    <tr><td>80–100</td><td>A+</td><td>4.00</td></tr>
+    <tr><td>75–79</td><td>A</td><td>3.75</td></tr>
+    <tr><td>70–74</td><td>A–</td><td>3.50</td></tr>
+    <tr><td>65–69</td><td>B+</td><td>3.25</td></tr>
+    <tr><td>60–64</td><td>B</td><td>3.00</td></tr>
+    <tr><td>55–59</td><td>B–</td><td>2.75</td></tr>
+    <tr><td>50–54</td><td>C</td><td>2.50</td></tr>
+    <tr><td>45–49</td><td>D</td><td>2.25</td></tr>
+    <tr><td>Below 45</td><td>F</td><td>0.00</td></tr>
+  </table>
+</div>
+
+<!-- Input Section -->
+<div style="text-align:center;">
+  <label>Number of Students:</label>
+  <input type="number" id="numStudents" min="1" value="1">
+  <label>Courses per Student:</label>
   <input type="number" id="numCourses" min="1" value="5"><br>
-
   <button onclick="createForm()">Generate Form</button>
+</div>
 
-  <div id="formArea"></div>
-  <div id="resultArea"></div>
+<div id="formArea"></div>
+<div id="resultArea"></div>
 
-  <script>
-    function grade(score) {
-      if (score >= 80) return 4.00;
-      else if (score >= 75) return 3.75;
-      else if (score >= 70) return 3.50;
-      else if (score >= 65) return 3.25;
-      else if (score >= 60) return 3.00;
-      else if (score >= 55) return 2.75;
-      else if (score >= 50) return 2.50;
-      else if (score >= 45) return 2.25;
-      else return 0.00;
-    }
+<!-- Print Button -->
+<div style="text-align:center;">
+  <button id="printBtn" onclick="window.print()">🖨️ Print Formal Report</button>
+</div>
 
-    function createForm() {
-      const n = parseInt(document.getElementById("numStudents").value);
-      const m = parseInt(document.getElementById("numCourses").value);
-      const formArea = document.getElementById("formArea");
-      formArea.innerHTML = "";
+<script>
+function toggleChart() {
+  const chart = document.getElementById("gradeChart");
+  chart.style.display = (chart.style.display === "none" || chart.style.display === "") ? "block" : "none";
+}
 
-      for (let i = 0; i < n; i++) {
-        let studentBox = document.createElement("div");
-        studentBox.className = "student-box";
-        studentBox.innerHTML = `
-          <h3>Student ${i+1}</h3>
-          Name: <input type="text" id="name${i}" placeholder="Enter name"><br>
-          Registration No: <input type="number" id="reg${i}" placeholder="Reg no"><br>
-          Department: <input type="text" id="dept${i}" placeholder="Dept"><br><br>
-          <strong>Courses (${m})</strong><br>
-          ${Array(m).fill(0).map((_, j) => `
-            <div class="course-box">
-              Course ${j+1} name: <input type="text" id="course${i}_${j}" placeholder="Course name"><br>
-              Credit: <input type="number" step="0.01" id="credit${i}_${j}" placeholder="Credit"><br>
-              Obtained Score: <input type="number" step="0.01" id="score${i}_${j}" placeholder="Score"><br>
-            </div>
-          `).join("")}
-        `;
-        formArea.appendChild(studentBox);
+function grade(score) {
+  if (score >= 80) return 4.00;
+  else if (score >= 75) return 3.75;
+  else if (score >= 70) return 3.50;
+  else if (score >= 65) return 3.25;
+  else if (score >= 60) return 3.00;
+  else if (score >= 55) return 2.75;
+  else if (score >= 50) return 2.50;
+  else if (score >= 45) return 2.25;
+  else return 0.00;
+}
+
+function letterGrade(score) {
+  if (score >= 80) return "A+";
+  else if (score >= 75) return "A";
+  else if (score >= 70) return "A–";
+  else if (score >= 65) return "B+";
+  else if (score >= 60) return "B";
+  else if (score >= 55) return "B–";
+  else if (score >= 50) return "C";
+  else if (score >= 45) return "D";
+  else return "F";
+}
+
+function gradePointFromLetter(letter) {
+  switch (letter) {
+    case "A+": return 4.00;
+    case "A": return 3.75;
+    case "A–": return 3.50;
+    case "B+": return 3.25;
+    case "B": return 3.00;
+    case "B–": return 2.75;
+    case "C": return 2.50;
+    case "D": return 2.25;
+    case "F": return 0.00;
+    default: return null;
+  }
+}
+
+function createForm() {
+  const n = parseInt(document.getElementById("numStudents").value);
+  const m = parseInt(document.getElementById("numCourses").value);
+  const formArea = document.getElementById("formArea");
+  formArea.innerHTML = "";
+
+  for (let i = 0; i < n; i++) {
+    let studentBox = document.createElement("div");
+    studentBox.className = "student-box";
+    studentBox.innerHTML = `
+      <h3>Student ${i+1}</h3>
+      Name: <input type="text" id="name${i}" placeholder="Enter name"><br>
+      Registration No: <input type="number" id="reg${i}" placeholder="Reg no"><br>
+      Institute: <input type="text" id="inst${i}" placeholder="Institute name"><br>
+      Department: <input type="text" id="dept${i}" placeholder="Dept"><br>
+      Semester: <input type="text" id="sem${i}" placeholder="e.g., 1st Semester"><br>
+      Year: <input type="text" id="year${i}" placeholder="e.g., 2025"><br><br>
+      <strong>Courses (${m})</strong><br>
+      ${Array(m).fill(0).map((_, j) => `
+        <div class="course-box">
+          Course ${j+1}: <input type="text" id="course${i}_${j}" placeholder="Course name"><br>
+          Credit: <input type="number" step="0.01" id="credit${i}_${j}" placeholder="Credit"><br>
+          Obtained Marks: <input type="number" step="0.01" id="score${i}_${j}" placeholder="Marks" oninput="updateLetter(${i}, ${j})"><br>
+          or Select Grade:
+          <select id="gradeSel${i}_${j}">
+            <option value="">--Select--</option>
+            <option>A+</option><option>A</option><option>A–</option>
+            <option>B+</option><option>B</option><option>B–</option>
+            <option>C</option><option>D</option><option>F</option>
+          </select>
+        </div>
+      `).join("")}
+    `;
+    formArea.appendChild(studentBox);
+  }
+
+  const calcButton = document.createElement("button");
+  calcButton.textContent = "Calculate GPA";
+  calcButton.onclick = function() { calculateGPA(n, m); };
+  formArea.appendChild(calcButton);
+}
+
+function updateLetter(i, j) {
+  const score = parseFloat(document.getElementById(`score${i}_${j}`).value);
+  const gradeSel = document.getElementById(`gradeSel${i}_${j}`);
+  if (!isNaN(score)) gradeSel.value = letterGrade(score);
+  else gradeSel.value = "";
+}
+
+function calculateGPA(n, m) {
+  const resultArea = document.getElementById("resultArea");
+  resultArea.innerHTML = "";
+
+  for (let i = 0; i < n; i++) {
+    let name = document.getElementById(`name${i}`).value || "Unnamed Student";
+    let reg = document.getElementById(`reg${i}`).value || "N/A";
+    let dept = document.getElementById(`dept${i}`).value || "N/A";
+    let inst = document.getElementById(`inst${i}`).value || "N/A";
+    let sem = document.getElementById(`sem${i}`).value || "N/A";
+    let year = document.getElementById(`year${i}`).value || "N/A";
+
+    let totalCredit = 0, creditXgpa = 0;
+    let studentHTML = `<div class="student-box"><h3>${inst}</h3>
+    <p><strong>Name:</strong> ${name}<br>
+    <strong>Reg No:</strong> ${reg}<br>
+    <strong>Department:</strong> ${dept}<br>
+    <strong>Semester:</strong> ${sem}<br>
+    <strong>Year:</strong> ${year}</p>`;
+
+    for (let j = 0; j < m; j++) {
+      let course = document.getElementById(`course${i}_${j}`).value || `Course ${j+1}`;
+      let credit = parseFloat(document.getElementById(`credit${i}_${j}`).value) || 0;
+      let score = parseFloat(document.getElementById(`score${i}_${j}`).value);
+      let letter = document.getElementById(`gradeSel${i}_${j}`).value;
+
+      let g, l;
+      if (letter) {
+        g = gradePointFromLetter(letter);
+        l = letter;
+      } else if (!isNaN(score)) {
+        g = grade(score);
+        l = letterGrade(score);
+      } else {
+        g = 0;
+        l = "N/A";
       }
 
-      formArea.innerHTML += `<button onclick="calculateGPA(${n}, ${m})">Calculate GPA</button>`;
+      totalCredit += credit;
+      creditXgpa += g * credit;
+
+      studentHTML += `<div class="course-box">
+        <strong>${course}</strong><br>
+        Credit: ${credit.toFixed(2)} | Grade: ${l} (${g.toFixed(2)})
+      </div>`;
     }
 
-    function calculateGPA(n, m) {
-      const resultArea = document.getElementById("resultArea");
-      resultArea.innerHTML = "";
-
-      const attendanceLink = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKSLSeadI0fi2DffUM05ArSXsKkJqMUQmk63uXiFzbFLQiZ-ofXydwANu55-gCyVVNJizVg7G81V4G/pubhtml?gid=0&single=true";
-
-      for (let i = 0; i < n; i++) {
-        let name = document.getElementById(`name${i}`).value;
-        let reg = document.getElementById(`reg${i}`).value;
-        let dept = document.getElementById(`dept${i}`).value;
-
-        let totalCredit = 0;
-        let creditXgpa = 0;
-        let studentHTML = `<div class="student-box"><h3>${name}</h3>`;
-        studentHTML += `Reg No: ${reg}<br>Dept: ${dept}<br>`;
-
-        for (let j = 0; j < m; j++) {
-          let course = document.getElementById(`course${i}_${j}`).value;
-          let credit = parseFloat(document.getElementById(`credit${i}_${j}`).value);
-          let score = parseFloat(document.getElementById(`score${i}_${j}`).value);
-
-          let g = grade(score);
-          totalCredit += credit;
-          creditXgpa += g * credit;
-
-          studentHTML += `
-            <div class="course-box">
-              <strong>${course}</strong><br>
-              Credit: ${credit.toFixed(2)} | Score: ${score.toFixed(2)} | GPA: ${g.toFixed(2)}
-            </div>
-          `;
-        }
-
-        let gpa = totalCredit > 0 ? (creditXgpa / totalCredit).toFixed(2) : 0;
-        studentHTML += `<p class="gpa">Overall GPA: ${gpa}</p>`;
-        // Add the attendance report link
-        studentHTML += `<div class="attendance-link"><a href="${attendanceLink}" target="_blank">See Attendance Report</a></div>`;
-        studentHTML += `</div>`; // Close the student-box div
-
-        resultArea.innerHTML += studentHTML;
-      }
-    }
-  </script>
+    let gpa = totalCredit > 0 ? (creditXgpa / totalCredit).toFixed(2) : "0.00";
+    studentHTML += `<p class="gpa">Cumulative GPA: ${gpa}</p></div>`;
+    resultArea.innerHTML += studentHTML;
+  }
+}
+</script>
 </body>
 </html>
