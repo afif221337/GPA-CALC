@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>University GPA Report Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>University GPA & CGPA Report Generator</title>
 <style>
   body {
     font-family: "Times New Roman", serif;
@@ -11,13 +12,13 @@
     padding: 20px;
   }
 
-  h2 {
+  h2, h3 {
     text-align: center;
     color: #1a237e;
     text-transform: uppercase;
   }
 
-  .toggle-btn, button {
+  .toggle-btn, button, .nav-btn {
     background-color: #1a237e;
     color: white;
     border: none;
@@ -26,10 +27,16 @@
     margin: 10px;
     cursor: pointer;
     transition: 0.3s;
+    font-size: 1em;
   }
 
-  .toggle-btn:hover, button:hover {
+  .toggle-btn:hover, button:hover, .nav-btn:hover {
     background-color: #0d154d;
+  }
+  
+  .nav-container {
+    text-align: center;
+    margin-bottom: 20px;
   }
 
   input, select {
@@ -37,6 +44,8 @@
     padding: 7px;
     border-radius: 4px;
     border: 1px solid #aaa;
+    width: 90%;
+    max-width: 250px; /* Limit width */
   }
 
   .grade-chart {
@@ -63,7 +72,7 @@
     color: white;
   }
 
-  .student-box {
+  .student-box, .cgpa-box {
     background: #fff;
     border-radius: 10px;
     padding: 20px;
@@ -71,7 +80,7 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
 
-  .course-box {
+  .course-box, .semester-box {
     background: #fafafa;
     border-left: 4px solid #1a237e;
     padding: 10px;
@@ -79,15 +88,22 @@
     border-radius: 4px;
   }
 
-  .gpa {
+  .gpa, .cgpa-result {
     font-weight: bold;
     color: #1a237e;
-    font-size: 1.1em;
+    font-size: 1.2em;
+    text-align: center;
+    margin-top: 15px;
   }
 
-  #formArea, #resultArea {
+  #formArea, #resultArea, #cgpaView {
     max-width: 800px;
     margin: auto;
+  }
+
+  /* Initially hide CGPA view */
+  #cgpaView {
+    display: none;
   }
 
   /* Print Formatting */
@@ -95,11 +111,15 @@
     body {
       background: white;
     }
-    .toggle-btn, #formArea button, #printBtn {
+    .toggle-btn, #formArea button, #printBtn, .nav-container, #cgpaView {
       display: none !important;
     }
     #gradeChart {
       display: none !important;
+    }
+    /* Ensure semester view is visible for printing */
+    #semesterView {
+      display: block !important;
     }
     #resultArea {
       box-shadow: none;
@@ -123,74 +143,74 @@
 </style>
 </head>
 <body>
-<h2>University GPA Calculator & Report</h2>
 
-<!-- Toggle Grade Chart -->
-<button class="toggle-btn" onclick="toggleChart()">See Grade Conversion Chart</button>
-
-<div class="grade-chart" id="gradeChart">
-  <h3 style="text-align:center;">Grade Conversion Chart</h3>
-  <table>
-    <tr><th>Marks</th><th>Letter Grade</th><th>Grade Point</th></tr>
-    <tr><td>80–100</td><td>A+</td><td>4.00</td></tr>
-    <tr><td>75–79</td><td>A</td><td>3.75</td></tr>
-    <tr><td>70–74</td><td>A–</td><td>3.50</td></tr>
-    <tr><td>65–69</td><td>B+</td><td>3.25</td></tr>
-    <tr><td>60–64</td><td>B</td><td>3.00</td></tr>
-    <tr><td>55–59</td><td>B–</td><td>2.75</td></tr>
-    <tr><td>50–54</td><td>C</td><td>2.50</td></tr>
-    <tr><td>45–49</td><td>D</td><td>2.25</td></tr>
-    <tr><td>Below 45</td><td>F</td><td>0.00</td></tr>
-  </table>
+<!-- Navigation -->
+<div class="nav-container">
+  <button id="navToSemester" class="nav-btn" onclick="showView('semesterView')" style="display: none;">Semester GPA Calculator</button>
+  <button id="navToCGPA" class="nav-btn" onclick="showView('cgpaView')">CGPA Calculator</button>
 </div>
 
-<!-- Input Section -->
-<div style="text-align:center;">
-  <label>Number of Students:</label>
-  <input type="number" id="numStudents" min="1" value="1">
-  <label>Courses per Student:</label>
-  <input type="number" id="numCourses" min="1" value="5"><br>
-  <button onclick="createForm()">Generate Form</button>
+<!-- View 1: Semester GPA Calculator (Original Content) -->
+<div id="semesterView">
+  <h2>University GPA Calculator & Report</h2>
+
+  <!-- Toggle Grade Chart -->
+  <button class="toggle-btn" onclick="toggleChart()">See Grade Conversion Chart</button>
+
+  <div class="grade-chart" id="gradeChart">
+    <h3 style="text-align:center;">Grade Conversion Chart</h3>
+    <table>
+      <tr><th>Marks</th><th>Letter Grade</th><th>Grade Point</th></tr>
+      <tr><td>80–100</td><td>A+</td><td>4.00</td></tr>
+      <tr><td>75–79</td><td>A</td><td>3.75</td></tr>
+      <tr><td>70–74</td><td>A–</td><td>3.50</td></tr>
+      <tr><td>65–69</td><td>B+</td><td>3.25</td></tr>
+      <tr><td>60–64</td><td>B</td><td>3.00</td></tr>
+      <tr><td>55–59</td><td>B–</td><td>2.75</td></tr>
+      <tr><td>50–54</td><td>C</td><td>2.50</td></tr>
+      <tr><td>45–49</td><td>D</td><td>2.25</td></tr>
+      <tr><td>Below 45</td><td>F</td><td>0.00</td></tr>
+    </table>
+  </div>
+
+  <!-- Input Section -->
+  <div style="text-align:center;" class="student-box">
+    <label>Number of Students:</label>
+    <input type="number" id="numStudents" min="1" value="1"><br>
+    <label>Courses per Student:</label>
+    <input type="number" id="numCourses" min="1" value="5"><br>
+    <button onclick="createForm()">Generate Form</button>
+  </div>
+
+  <div id="formArea"></div>
+  <div id="resultArea"></div>
+
+  <!-- Print Button -->
+  <div style="text-align:center;">
+    <button id="printBtn" onclick="window.print()">🖨️ Print Formal Report</button>
+  </div>
 </div>
 
-<div id="formArea"></div>
-<div id="resultArea"></div>
-
-<!-- Print Button -->
-<div style="text-align:center;">
-  <button id="printBtn" onclick="window.print()">🖨️ Print Formal Report</button>
+<!-- View 2: CGPA Calculator (New Section) -->
+<div id="cgpaView">
+  <h2>CGPA Calculator (4.00 Scale)</h2>
+  
+  <div class="cgpa-box">
+    <div style="text-align:center;">
+      <label>Number of Semesters:</label>
+      <input type="number" id="numSemesters" min="1" value="2"><br>
+      <button onclick="createCGPAForm()">Generate Semester Fields</button>
+    </div>
+    
+    <div id="cgpaFormArea"></div>
+    
+    <div id="cgpaResultArea"></div>
+  </div>
 </div>
+
 
 <script>
-function toggleChart() {
-  const chart = document.getElementById("gradeChart");
-  chart.style.display = (chart.style.display === "none" || chart.style.display === "") ? "block" : "none";
-}
-
-function grade(score) {
-  if (score >= 80) return 4.00;
-  else if (score >= 75) return 3.75;
-  else if (score >= 70) return 3.50;
-  else if (score >= 65) return 3.25;
-  else if (score >= 60) return 3.00;
-  else if (score >= 55) return 2.75;
-  else if (score >= 50) return 2.50;
-  else if (score >= 45) return 2.25;
-  else return 0.00;
-}
-
-function letterGrade(score) {
-  if (score >= 80) return "A+";
-  else if (score >= 75) return "A";
-  else if (score >= 70) return "A–";
-  else if (score >= 65) return "B+";
-  else if (score >= 60) return "B";
-  else if (score >= 55) return "B–";
-  else if (score >= 50) return "C";
-  else if (score >= 45) return "D";
-  else return "F";
-}
-
+// --- Common Functions ---
 function gradePointFromLetter(letter) {
   switch (letter) {
     case "A+": return 4.00;
@@ -206,6 +226,56 @@ function gradePointFromLetter(letter) {
   }
 }
 
+function letterGrade(score) {
+  if (score >= 80) return "A+";
+  else if (score >= 75) return "A";
+  else if (score >= 70) return "A–";
+  else if (score >= 65) return "B+";
+  else if (score >= 60) return "B";
+  else if (score >= 55) return "B–";
+  else if (score >= 50) return "C";
+  else if (score >= 45) return "D";
+  else return "F";
+}
+
+function grade(score) {
+  if (score >= 80) return 4.00;
+  else if (score >= 75) return 3.75;
+  else if (score >= 70) return 3.50;
+  else if (score >= 65) return 3.25;
+  else if (score >= 60) return 3.00;
+  else if (score >= 55) return 2.75;
+  else if (score >= 50) return 2.50;
+  else if (score >= 45) return 2.25;
+  else return 0.00;
+}
+
+// --- View Toggling ---
+function showView(viewId) {
+  const semesterView = document.getElementById("semesterView");
+  const cgpaView = document.getElementById("cgpaView");
+  const navToSemester = document.getElementById("navToSemester");
+  const navToCGPA = document.getElementById("navToCGPA");
+
+  if (viewId === 'semesterView') {
+    semesterView.style.display = "block";
+    cgpaView.style.display = "none";
+    navToSemester.style.display = "none";
+    navToCGPA.style.display = "inline-block";
+  } else {
+    semesterView.style.display = "none";
+    cgpaView.style.display = "block";
+    navToSemester.style.display = "inline-block";
+    navToCGPA.style.display = "none";
+  }
+}
+
+function toggleChart() {
+  const chart = document.getElementById("gradeChart");
+  chart.style.display = (chart.style.display === "none" || chart.style.display === "") ? "block" : "none";
+}
+
+// --- Semester GPA Calculator Functions (Original) ---
 function createForm() {
   const n = parseInt(document.getElementById("numStudents").value);
   const m = parseInt(document.getElementById("numCourses").value);
@@ -244,6 +314,8 @@ function createForm() {
 
   const calcButton = document.createElement("button");
   calcButton.textContent = "Calculate GPA";
+  calcButton.style.display = "block"; // Make button block level
+  calcButton.style.margin = "10px auto"; // Center the button
   calcButton.onclick = function() { calculateGPA(n, m); };
   formArea.appendChild(calcButton);
 }
@@ -268,7 +340,7 @@ function calculateGPA(n, m) {
     let year = document.getElementById(`year${i}`).value || "N/A";
 
     let totalCredit = 0, creditXgpa = 0;
-    let studentHTML = `<div class="student-box"><h3>${inst}</h3>
+    let studentHTML = `<div class="student-box"><h3>${inst || 'University Report'}</h3>
     <p><strong>Name:</strong> ${name}<br>
     <strong>Reg No:</strong> ${reg}<br>
     <strong>Department:</strong> ${dept}<br>
@@ -303,10 +375,73 @@ function calculateGPA(n, m) {
     }
 
     let gpa = totalCredit > 0 ? (creditXgpa / totalCredit).toFixed(2) : "0.00";
-    studentHTML += `<p class="gpa">Cumulative GPA: ${gpa}</p></div>`;
+    studentHTML += `<p class="gpa">Semester GPA: ${gpa}</p></div>`;
     resultArea.innerHTML += studentHTML;
   }
 }
+
+// --- CGPA Calculator Functions (New) ---
+function createCGPAForm() {
+  const numSemesters = parseInt(document.getElementById("numSemesters").value);
+  const formArea = document.getElementById("cgpaFormArea");
+  formArea.innerHTML = "";
+  
+  if (isNaN(numSemesters) || numSemesters < 1) {
+    formArea.innerHTML = "<p style='color: red; text-align: center;'>Please enter a valid number of semesters.</p>";
+    return;
+  }
+
+  for (let i = 0; i < numSemesters; i++) {
+    let semBox = document.createElement("div");
+    semBox.className = "semester-box";
+    semBox.innerHTML = `
+      <strong>Semester ${i+1}</strong><br>
+      Total Credits: <input type="number" step="0.01" id="sem_credit_${i}" placeholder="e.g., 18.5"><br>
+      Semester GPA (SGPA): <input type="number" step="0.01" id="sem_gpa_${i}" placeholder="e.g., 3.75">
+    `;
+    formArea.appendChild(semBox);
+  }
+  
+  const calcButton = document.createElement("button");
+  calcButton.textContent = "Calculate CGPA";
+  calcButton.style.display = "block"; // Make button block level
+  calcButton.style.margin = "10px auto"; // Center the button
+  calcButton.onclick = calculateCGPA;
+  formArea.appendChild(calcButton);
+  
+  // Clear previous result
+  document.getElementById("cgpaResultArea").innerHTML = "";
+}
+
+function calculateCGPA() {
+  const numSemesters = parseInt(document.getElementById("numSemesters").value);
+  let totalCredits = 0;
+  let totalGradePoints = 0;
+  
+  for (let i = 0; i < numSemesters; i++) {
+    const credits = parseFloat(document.getElementById(`sem_credit_${i}`).value) || 0;
+    const gpa = parseFloat(document.getElementById(`sem_gpa_${i}`).value) || 0;
+    
+    totalCredits += credits;
+    totalGradePoints += (gpa * credits);
+  }
+  
+  const cgpa = totalCredits > 0 ? (totalGradePoints / totalCredits) : 0;
+  
+  const resultArea = document.getElementById("cgpaResultArea");
+  if (totalCredits === 0) {
+     resultArea.innerHTML = `<p class="cgpa-result" style="color: red;">
+      Please enter valid credit hours to calculate CGPA.
+     </p>`;
+  } else {
+    resultArea.innerHTML = `<p class="cgpa-result">
+      Total Credits: ${totalCredits.toFixed(2)}<br>
+      Total Grade Points: ${totalGradePoints.toFixed(2)}<br>
+      Your Cumulative GPA (CGPA) is: ${cgpa.toFixed(2)}
+    </p>`;
+  }
+}
+
 </script>
 </body>
 </html>
